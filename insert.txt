@@ -1,0 +1,36 @@
+use strict;
+use DBI;
+
+# Get the mysql database connection 
+my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+
+&Insert();
+#Insert() is used for insert the data into the database.
+sub Insert()
+{
+
+
+my %hash = (
+    EmpId  => 32,
+    EmpName  => 'kiran',
+    EmpAge => 29,
+    EmpDept => 'admin',
+);
+
+my $keystr = (join ",\n        ", (keys %hash));
+my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hash))));
+my @values = values %hash;
+
+my $query = qq`insert into employee ( $keystr ) values ($valstr )`;
+
+my $sth = $dbh->prepare($query) 
+    or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+$sth->execute(@values)
+    or die "Can't execute insert: ".$dbh->errstr()."\n";
+    print "insert data into database \n";
+}
+# close the connection
+$dbh->disconnect;
+
+

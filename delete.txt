@@ -1,0 +1,30 @@
+use strict;
+use DBI;
+
+# Get the mysql database connection 
+my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+
+&delete();
+#delete() is used for delete the data from the database
+sub delete()
+{
+
+my %hash = (
+    EmpId  => 31);
+my $keystr = (join ",\n        ", (keys %hash));
+my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hash))));
+my @values = values %hash;
+
+my $query = qq`
+    delete from employee  where ($keystr=$valstr )`;
+
+my $sth = $dbh->prepare($query) 
+    or die "Can't prepare delete: ".$dbh->errstr()."\n";
+
+$sth->execute(@values)
+    or die "Can't execute delete: ".$dbh->errstr()."\n";
+print "Deleting one row into the data base \n";}
+# close the connection
+$dbh->disconnect;
+
+	
