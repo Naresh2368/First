@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use v5.10; # for say() function
+use DBI;
+
+
+# get user's input links
+my @employee = insert();
+
+# Get the mysql database connection 
+my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+
+# insert data into the links table
+my $sql = "INSERT INTO employee(EmpId,EmpName,EmpAge,EmpDept)
+	   VALUES(?,?,?,?)";
+
+my $stmt = $dbh->prepare($sql);
+
+# execute the query
+foreach my $employee(@employee){
+  if($stmt->execute($employee->{EmpId}, $employee->{EmpName}, $employee->{EmpAge},$employee->{EmpDept})){
+    say "emplotee $employee->.{EmpId} inserted successfully";
+  }
+
+}
+$stmt->finish();
+
+# disconnect from the MySQL database
+$dbh->disconnect();
+
+sub insert{
+   my $cmd = '';
+   my @employee;
+   # get links from the command line
+   my($EmpId,$EmpName,$EmpAge,$EmpDept);
+
+   # repeatedly ask for employee data from command line
+   do{
+     say "EmpId:";
+     chomp($EmpId = <STDIN>); 
+
+     say "EmpName:";
+     chomp($EmpName = <STDIN>);
+
+     say "EmpAge:";
+     chomp($EmpAge = <STDIN>);
+     
+     say "EmpDept:";
+     chomp($EmpDept = <STDIN>);
+
+     
+     my %employee = (EmpId=> $EmpId, EmpName=> $EmpName, EmpAge=> $EmpAge, EmpDept=> $EmpDept);
+
+     push(@employee,\%employee);
+
+     print("\nDo you want to insert another employee? (Y/N)?");
+     chomp($cmd = <STDIN>);
+     $cmd = uc($cmd);
+   }until($cmd eq 'N');
+
+   return @employee;
+}

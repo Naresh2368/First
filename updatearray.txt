@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use v5.10; # for say() function
+use DBI;
+
+&update();
+#Update method is used for to Update the data into the database
+sub update()
+{
+
+say "Perl MySQL Update Data Demo";
+
+# Get the mysql database connection 
+my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+
+# update statement
+my $sql = "UPDATE employee
+           SET EmpName = ?, 
+               EmpAge = ?,
+               EmpDept = ?
+	   WHERE EmpId = ?";
+
+my $sth = $dbh->prepare($sql);
+
+my $EmpName = "sivaram";
+my $EmpAge = 27;
+my $EmpDept = 'health';
+my $EmpId = 7;
+
+# bind the corresponding parameter
+$sth->bind_param(1,$EmpName);
+$sth->bind_param(2,$EmpAge);
+$sth->bind_param(3,$EmpDept);
+$sth->bind_param(4,$EmpId);
+
+# execute the query
+$sth->execute();
+
+say "The record has been updated successfully!";
+
+$sth->finish();
+
+# disconnect from the MySQL database
+$dbh->disconnect();
+}

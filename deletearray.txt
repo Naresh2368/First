@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use v5.10; # for say() function
+
+use DBI;
+
+&Delete();
+#Delete method is used for to Delete the data into the database
+sub Delete()
+{
+say "Perl MySQL Delete Data Demo";
+
+# Get the mysql database connection 
+my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+
+my $sql = "DELETE FROM employee WHERE EmpId=7";
+my $sth = $dbh->prepare($sql);
+$sth->execute();
+print "Successfully delete data into database \n";
+
+$dbh->disconnect();
+}
