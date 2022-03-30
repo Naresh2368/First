@@ -9,6 +9,7 @@ use DBI;
 sub update()
 {
 
+
 say "Perl MySQL Update Data Demo";
 
 # Get the mysql database connection 

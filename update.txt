@@ -10,7 +10,7 @@ my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Con
 sub update()
 {
 
-my %hashes = (EmpName =>'Nagaraj');
+my %hashes = (EmpName =>'Nagaraju23');
 
 my %hashes1 = (EmpId =>2);
 
