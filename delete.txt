@@ -1,30 +1,47 @@
 use strict;
 use DBI;
 
-# Get the mysql database connection 
-my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+&main();  # to call the main method
 
-&delete();
-#delete() is used for delete the data from the database
-sub delete()
+#Define main() method
+sub main()      
 {
+    &initDB();  # To call the initDB() method
+    
+    &delete();  # To call the delete() method
+    
+    &cleanUpDb(); # To call the cleanUpDb() method
+    
+}
+# InitDB() method is used for to connect the database
+sub initDB()
+{
+    
+    # Get the mysql database connection 
+    my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
 
-my %hash = (
-    EmpId  => 31);
-my $keystr = (join ",\n        ", (keys %hash));
-my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hash))));
-my @values = values %hash;
+    my %hash = ( EmpId  => 36);
+    my $keystr = (join ",\n        ", (keys %hash));
+    my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hash))));
+    my @values = values %hash;
 
-my $query = qq`
-    delete from employee  where ($keystr=$valstr )`;
+    #delete() is used for delete the data from the database
+    sub delete()
+    {
 
-my $sth = $dbh->prepare($query) 
-    or die "Can't prepare delete: ".$dbh->errstr()."\n";
+        my $query = qq`delete from employee  where $keystr=$valstr `;
+        my $sth = $dbh->prepare($query) or die "Can't prepare delete: ".$dbh->errstr()."\n";
+        $sth->execute(@values) or die "Can't execute delete: ".$dbh->errstr()."\n";
+        print "Deleting one row into the data base \n";
+        $sth->finish();
+    }
+    
+    #cleanUpDb() method used for to close the db connection
+    sub cleanUpDb()
+    {
+    
+        # close the connection
+        $dbh->disconnect;
+    }
 
-$sth->execute(@values)
-    or die "Can't execute delete: ".$dbh->errstr()."\n";
-print "Deleting one row into the data base \n";}
-# close the connection
-$dbh->disconnect;
-
-	
+}	
