@@ -4,44 +4,66 @@ use warnings;
 use v5.10; # for say() function
 use DBI;
 
-&update();
+# To call the main() method
+&main();
+
+#Define main() method
+sub main()
+{
+	&InitDB();	   # To call the InitDB() method
+	&update();	   # To call the Insert() method
+	&cleanUpDb();  # To call the cleanUpDb() method
+}
+
+my $dbh;
+
+# InitDB() method is used for to connect the database
+sub InitDB()
+{
+	# Get the mysql database connection 
+	 $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+}
 #Update method is used for to Update the data into the database
 sub update()
 {
 
 
-say "Perl MySQL Update Data Demo";
-
-# Get the mysql database connection 
-my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
-
-# update statement
-my $sql = "UPDATE employee
+	# update statement
+	my $sql = "UPDATE employee
            SET EmpName = ?, 
                EmpAge = ?,
                EmpDept = ?
 	   WHERE EmpId = ?";
 
-my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare($sql) or die "Can't prepare delete: ".$dbh->errstr();
 
-my $EmpName = "sivaram";
-my $EmpAge = 27;
-my $EmpDept = 'health';
-my $EmpId = 7;
+	my $EmpName = "sivaram";
+	my $EmpAge = 38;
+	my $EmpDept = 'health';
+	my $EmpId = 9;
 
-# bind the corresponding parameter
-$sth->bind_param(1,$EmpName);
-$sth->bind_param(2,$EmpAge);
-$sth->bind_param(3,$EmpDept);
-$sth->bind_param(4,$EmpId);
+	# bind the corresponding parameter
+	$sth->bind_param(1,$EmpName);
+	$sth->bind_param(2,$EmpAge);
+	$sth->bind_param(3,$EmpDept);
+	$sth->bind_param(4,$EmpId);
 
-# execute the query
-$sth->execute();
-
-say "The record has been updated successfully!";
-
-$sth->finish();
-
-# disconnect from the MySQL database
-$dbh->disconnect();
+	# execute the query
+	$sth->execute() or die "Can't execute update: ".$dbh->errstr();
+	say "The record has been updated successfully!";
+	$sth->finish();
+}
+# cleanUpDb() method is used for to close the connection
+sub cleanUpDb()
+{    
+	if(defined $dbh)
+	{	
+		# close the connection
+		$dbh->disconnect;
+	}
+	else
+	{
+		print"Connection  closed";
+	}
+  
 }

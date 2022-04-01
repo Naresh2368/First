@@ -2,22 +2,53 @@
 use strict;
 use warnings;
 use v5.10; # for say() function
-
 use DBI;
 
-&Delete();
-#Delete method is used for to Delete the data into the database
-sub Delete()
+&main();  # to call the main method
+
+#Define main() method
+sub main()      
 {
-say "Perl MySQL Delete Data Demo";
-
-# Get the mysql database connection 
-my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
-
-my $sql = "DELETE FROM employee WHERE EmpId=7";
-my $sth = $dbh->prepare($sql);
-$sth->execute();
-print "Successfully delete data into database \n";
-
-$dbh->disconnect();
+    &initDB();     # To call the initDB() method 
+    &delete();     # To call the delete() method
+    &cleanUpDb();  # To call the cleanUpDb() method
+    
 }
+
+my $dbh;
+
+# InitDB() method is used for to connect the database
+sub initDB()
+{
+	# Get the mysql database connection 
+	$dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+}
+
+#delete() is used for delete the data from the database
+sub delete()
+{
+	# Delete statement
+	my $sql = "DELETE FROM employee WHERE EmpId=38";
+	my $sth = $dbh->prepare($sql) or die "Can't prepare delete: ".$dbh->errstr();
+	
+	# execute the query
+	$sth->execute() or die "Can't execute delete: ".$dbh->errstr();
+	print "Successfully deleted data into database \n";
+}
+
+#cleanUpDb() method used for to close the db connection
+sub cleanUpDb()
+{
+    
+    if(defined $dbh)
+    {	
+	# close the connection
+	$dbh->disconnect;
+    }
+    else
+    {
+	print"Connection  closed";
+     }
+    
+
+}	

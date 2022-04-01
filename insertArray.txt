@@ -5,59 +5,92 @@ use v5.10; # for say() function
 use DBI;
 
 
-# get user's input links
-my @employee = insert();
+# To call the main() method
+&main();
 
-# Get the mysql database connection 
-my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
-
-# insert data into the links table
-my $sql = "INSERT INTO employee(EmpId,EmpName,EmpAge,EmpDept)
-	   VALUES(?,?,?,?)";
-
-my $stmt = $dbh->prepare($sql);
-
-# execute the query
-foreach my $employee(@employee){
-  if($stmt->execute($employee->{EmpId}, $employee->{EmpName}, $employee->{EmpAge},$employee->{EmpDept})){
-    say "emplotee $employee->.{EmpId} inserted successfully";
-  }
-
+#Define main() method
+sub main()
+{
+	&InitDB();	   # To call the InitDB() method
+	&Insert();	   # To call the Insert() method
+	&cleanUpDb();  # To call the cleanUpDb() method
 }
-$stmt->finish();
 
-# disconnect from the MySQL database
-$dbh->disconnect();
+my $dbh;
+# InitDB() method is used for to connect the database
+sub InitDB()
+{
 
-sub insert{
+	# Get the mysql database connection 
+	 $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+}
+
+#Insert() method is used for insert the data into the database.
+sub Insert()
+{
+	
+	say "Perl MySQL Insert Data Demo";
+	# get user's input links
+	my @employee = insert();
+
+	# insert data into the employee table
+	my $sql = "INSERT INTO employee(EmpId,EmpName,EmpAge,EmpDept) VALUES(?,?,?,?)";
+	my $stmt = $dbh->prepare($sql) or die "Can't prepare insert: ".$dbh->errstr();
+	# execute the query
+	foreach my $employee(@employee)
+	{
+		if($stmt->execute($employee->{EmpId}, $employee->{EmpName}, $employee->{EmpAge},$employee->{EmpDept}) or die "Can't execute insert: ".$dbh->errstr())
+		{
+			say "emplotee $employee->.{EmpId} inserted successfully";
+		}
+
+	}
+	
+}
+# cleanUpDb() method used for close the connection
+sub cleanUpDb()
+{
+	if(defined $dbh)
+	{	
+	# close the connection
+	$dbh->disconnect;
+	}
+	else
+	{
+		print"Connection  closed";
+	}
+
+	
+}
+
+#insert() method is used for insert the data into the database.
+sub insert()
+{
    my $cmd = '';
    my @employee;
    # get links from the command line
    my($EmpId,$EmpName,$EmpAge,$EmpDept);
-
    # repeatedly ask for employee data from command line
    do{
-     say "EmpId:";
-     chomp($EmpId = <STDIN>); 
-
-     say "EmpName:";
-     chomp($EmpName = <STDIN>);
-
-     say "EmpAge:";
-     chomp($EmpAge = <STDIN>);
+	say "EmpId:";
+	chomp($EmpId = <STDIN>); 
+	
+	say "EmpName:";
+	chomp($EmpName = <STDIN>);
+	
+	say "EmpAge:";
+	chomp($EmpAge = <STDIN>);
      
-     say "EmpDept:";
-     chomp($EmpDept = <STDIN>);
+	say "EmpDept:";
+	chomp($EmpDept = <STDIN>);
+  
+	my %employee = (EmpId=> $EmpId, EmpName=> $EmpName, EmpAge=> $EmpAge, EmpDept=> $EmpDept);
+	push(@employee,\%employee);
 
-     
-     my %employee = (EmpId=> $EmpId, EmpName=> $EmpName, EmpAge=> $EmpAge, EmpDept=> $EmpDept);
-
-     push(@employee,\%employee);
-
-     print("\nDo you want to insert another employee? (Y/N)?");
-     chomp($cmd = <STDIN>);
-     $cmd = uc($cmd);
-   }until($cmd eq 'N');
-
+	print("\nDo you want to insert another employee? (Y/N)?");
+	chomp($cmd = <STDIN>);
+	$cmd = uc($cmd);
+    }
+    until($cmd eq 'N');
    return @employee;
 }

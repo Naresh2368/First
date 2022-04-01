@@ -6,50 +6,58 @@ use DBI;
 #Define main()  method
 sub main()
 {
-    &InitDB();  #To call the InitDB() method
-    
-    &update();  #To call the update() method
-    
+    &InitDB();     #To call the InitDB() method
+    &update();     #To call the update() method
     &cleanUpDb();  #To call the cleanUpDb()
 }
 
+my $dbh;
 # InitDB() method is used for to connect the database
 sub InitDB()
 {
     
     # Get the mysql database connection 
-    my $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+    $dbh=DBI->connect('DBI:mysql:localdb','root','root123') or die "Could not Connect to the mysql database please check the crdentials".DBI->errstr;
+}
 
+   
+#Update method is used for to Update the data into the database
+sub update()
+{
 
-    my %hashes = (EmpName =>'Nagaraju');
+	#To Initialize the key and value pairs
+	my %hashes = (EmpName =>'Nagaraju');
+	my %hashes1 = (EmpId =>2);
 
-    my %hashes1 = (EmpId =>2);
+	my $keystr = (join ",\n        ", (keys %hashes));
+	my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hashes))));
+	my @values = values %hashes;
 
-    my $keystr = (join ",\n        ", (keys %hashes));
-    my $valstr = join ', ', (split(/ /, "? " x (scalar(values %hashes))));
-    my @values = values %hashes;
+	my $keystr1 = (join ",\n        ", (keys %hashes1));
+	my $valstr2 = join ', ', (split(/ /, "? " x (scalar(values %hashes1))));
+	my @values1 = values %hashes1;
 
-    my $keystr1 = (join ",\n        ", (keys %hashes1));
-    my $valstr2 = join ', ', (split(/ /, "? " x (scalar(values %hashes1))));
-    my @values1 = values %hashes1;
-
-    #Update method is used for to Update the data into the database
-    sub update()
-    {
-
+	# Update statement
         my $query = qq`update employee set $keystr=$valstr where $keystr1=$valstr2`;
-
-        my $sth = $dbh->prepare($query) or die "Can't prepare update: ".$dbh->errstr()."\n";
-    
-        $sth->execute(@values,@values1) or die "Can't execute update: ".$dbh->errstr()."\n";
-        print "Successfully update data into the data base \n";
+        my $sth = $dbh->prepare($query) or die "Can't prepare update: ".$dbh->errstr();
+        		
+        # execute the query
+        $sth->execute(@values,@values1) or die "Can't execute update: ".$dbh->errstr();
+        print "Successfully updated data into the data base \n";
         $sth->finish();
-    }
+}
     
-   # cleanUpDb() method is used for to close the connection
-    sub cleanUpDb()
-    {    
-        # close the connection
-        $dbh->disconnect;
-    }
+# cleanUpDb() method is used for to close the connection
+sub cleanUpDb()
+{    
+	if(defined $dbh)
+	{	
+		# close the connection
+		$dbh->disconnect;
+	}
+	else
+	{
+		print"Connection closed";
+	}
+  
 }
